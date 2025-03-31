@@ -5,6 +5,7 @@ let questions = []; // Array para almacenar las preguntas
 let nextId = 1;     // Contador para IDs únicos
 let editingIndex = null; // Índice de la pregunta que se está editando (en el array 'questions')
 let questionsTable; // Variable para guardar la instancia de DataTables
+let currentlyPreviewingRow = null; // <<<--- NUEVA VARIABLE GLOBAL
 
 // ==================================
 //      Referencias a Elementos DOM
@@ -123,7 +124,7 @@ function initializeDataTable() {
         const resumenHTML = marked.parseInline(resumenTexto || '*Vacío*');
         return [
             q.id, q.topic || 'N/A', q.mode || 'N/A', q.exam?.year || 'N/A', q.exam?.month || 'N/A', q.exam?.week || 'N/A',
-            `<div class="resumen-content">${resumenHTML}</div><button class="ver-mas" onclick="previewQuestion(${index})">Ver más</button>`,
+            `<div class="resumen-content">${resumenHTML}</div>`,
             q.description || '',
             `<button onclick="openModal(${index})" title="Editar">✏️</button> <button onclick="deleteQuestion(${index})" title="Eliminar">🗑️</button>`,
             `<input type="checkbox" onchange="toggleSelect(this, ${index})" ${q.selected ? 'checked' : ''} aria-label="Seleccionar pregunta ${q.id}">`
@@ -156,19 +157,71 @@ function initializeDataTable() {
 // ==================================
 //      Funciones de Interacción (Eventos de Botones en Tabla, etc.)
 // ==================================
-window.previewQuestion = (index) => {
-     if (!questions[index]) return;
-     const q = questions[index];
-     if (preview) {
-         try {
-             preview.innerHTML = marked.parse(q.questionMarkdown || '*No hay contenido.*');
-         } catch(e) {
-             preview.innerHTML = '<p style="color:red">Error al procesar el Markdown.</p>'
-             console.error("Error en marked.parse:", e);
-         }
-         preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-     } else { console.error("Elemento #markdown-preview no encontrado."); }
-};
+// En app.js
+
+// Función llamada desde los onclick (Ver Más y clic en fila)
+window.previewQuestion = (id) => {
+    const index = questions.findIndex(q => q.id === id);
+    console.log(`Preview request for ID: ${id}, found index: ${index}`);
+
+    if (index !== -1) {
+        const q = questions[index]; // Obtener la pregunta
+
+        // --- INICIO: Lógica de Resaltado ---
+        // 1. Quitar resaltado anterior
+        if (currentlyPreviewingRow) {
+            currentlyPreviewingRow.classList.remove('previewing'); // Usa una clase CSS específica
+            currentlyPreviewingRow = null;
+        }
+
+        // 2. Encontrar la nueva fila en DataTables por ID
+        let newRowElement = null;
+        if (questionsTable) {
+            questionsTable.rows().every(function() { // Itera sobre las filas de DataTables
+                const rowData = this.data(); // Obtiene los datos de la fila actual
+                if (rowData && rowData[0] === id) { // Compara el ID (asumiendo que está en la primera columna de datos)
+                    newRowElement = this.node(); // Obtiene el elemento <tr>
+                    return false; // Detener la búsqueda
+                }
+                return true;
+            });
+        }
+
+        // 3. Aplicar resaltado si se encontró la fila
+        if (newRowElement) {
+            newRowElement.classList.add('previewing'); // Aplica la nueva clase
+            currentlyPreviewingRow = newRowElement; // Guarda la referencia
+            console.log("   Fila resaltada:", newRowElement);
+        } else {
+             console.warn(`No se encontró la fila TR para resaltar (ID: ${id})`);
+             // Si no se encuentra (ej. está en otra página de DataTables),
+             // nos aseguramos que 'currentlyPreviewingRow' quede null.
+             currentlyPreviewingRow = null;
+        }
+        // --- FIN: Lógica de Resaltado ---
+
+
+        // --- Lógica para mostrar el contenido en el div #preview (como antes) ---
+        if (preview) {
+            try { preview.innerHTML = marked.parse(q.questionMarkdown || '*No hay contenido.*'); }
+            catch(e) { preview.innerHTML = '<p style="color:red">Error Markdown.</p>'; console.error("Error marked.parse:", e);}
+            // El scroll puede ser útil incluso sin altura fija, si la preview es muy larga
+            preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else { console.error("Elemento #markdown-preview no encontrado."); }
+        // --- Fin Lógica de Mostrar Contenido ---
+
+    } else { // Si no se encontró la pregunta por ID
+        console.error(`Pregunta con ID ${id} no encontrada para previsualizar.`);
+        // Quitar resaltado si se intentó previsualizar una inexistente
+        if (currentlyPreviewingRow) {
+            currentlyPreviewingRow.classList.remove('previewing');
+            currentlyPreviewingRow = null;
+        }
+        if (preview) { preview.innerHTML = '<em>Pregunta no encontrada.</em>'; }
+    }
+}; // Fin de previewQuestionById
+
+
 
 window.toggleSelect = (checkboxElement, index) => {
     if (!questions[index]) { console.warn(`Índice inválido en toggleSelect: ${index}`); return; }
@@ -378,11 +431,30 @@ if (suggestTopicBtn) { suggestTopicBtn.addEventListener('click', async () => {
     finally { suggestTopicBtn.textContent = 'Sugerir tema'; suggestTopicBtn.disabled = false; }
 }); }
 
-document.addEventListener('paste', (event) => {
-    const items = (event.clipboardData || event.originalEvent.clipboardData)?.items; if (!items) return;
-    // ... (Lógica de pegar imagen como antes) ...
-    for (const item of items) { if (item.type.indexOf("image") === 0) { /* ... resto de lógica prompt y asignar a ocrInput/attachedInput ... */ break; } }
-});
+// Pegado desde portapapeles para ambas imágenes
+document.addEventListener('paste', function (event) {
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    for (const item of items) {
+      if (item.type.indexOf("image") === 0) {
+        const blob = item.getAsFile();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const useFor = prompt("¿Esta imagen es para OCR o adjunta? (ocr / adjunta)");
+        if (useFor === "ocr") {
+          a.download = 'ocr-' + Date.now() + '.jpg';
+          a.click();
+          ocrInput.value = '';
+          alert('Imagen pegada descargada. Selecciónala como OCR.');
+        } else if (useFor === "adjunta") {
+          a.download = 'imagen-' + Date.now() + '.jpg';
+          a.click();
+          attachedInput.value = '';
+          alert('Imagen pegada descargada. Selecciónala como imagen adjunta.');
+        }
+      }
+    }
+  });
 
 // ==================================
 //      Funciones Auxiliares
@@ -416,6 +488,12 @@ document.addEventListener('DOMContentLoaded', () => {
      if (typeof Chart === 'undefined') { console.warn("Librería Chart.js no cargada."); }
      // ... otras verificaciones si es necesario ...
 
+     const questionsTableBody = document.querySelector('#questions-table tbody');
+     if (!questionsTableBody) {
+         console.error("Elemento tbody de la tabla de preguntas no encontrado.");
+         // Puedes decidir detener la ejecución o continuar sin esta funcionalidad
+     }
+
     loadFromStorage();     // Cargar datos del localStorage
 
     // Inicializar DataTables (si está disponible)
@@ -432,5 +510,57 @@ document.addEventListener('DOMContentLoaded', () => {
         generateTopicStatsChart(questions);
     } else {
         console.warn("Función generateTopicStatsChart no encontrada (revisa stats.js). El gráfico no se mostrará.");
+    }
+
+
+    // === INICIO: Añadir Listener para Clic en Filas ===
+    if (questionsTableBody) {
+        questionsTableBody.addEventListener('click', (event) => {
+            const targetElement = event.target; // Elemento exacto donde se hizo clic
+
+            // 1. Ignorar clics en elementos interactivos existentes
+            if (targetElement.tagName === 'BUTTON' ||
+                targetElement.tagName === 'INPUT' ||
+                targetElement.tagName === 'A' || // Si tuvieras enlaces
+                targetElement.closest('button') || // Ignorar si se hace clic DENTRO de un botón
+                targetElement.closest('input'))
+            {
+                console.log("Clic en elemento interactivo, ignorando para preview de fila.");
+                return; // No hacer nada
+            }
+
+            // 2. Encontrar la fila (TR) padre más cercana
+            const row = targetElement.closest('tr');
+            if (!row) {
+                 console.log("Clic fuera de una fila.");
+                 return; // No se hizo clic en una fila válida
+            }
+
+             // 3. Asegurarse que la fila pertenece a ESTE tbody (importante si hay tablas anidadas, raro aquí)
+             if (!questionsTableBody.contains(row)) {
+                  console.log("Clic en fila, pero no dentro del tbody esperado.");
+                 return;
+             }
+
+
+            // 4. Obtener el ID de la primera celda de esa fila
+            const idCell = row.cells[0]; // La primera celda (columna ID)
+            if (!idCell) {
+                console.warn("No se pudo encontrar la celda de ID en la fila:", row);
+                return;
+            }
+
+            const id = parseInt(idCell.textContent, 10); // Convertir a número
+            if (isNaN(id)) {
+                console.warn("No se pudo extraer un ID numérico de la celda:", idCell.textContent);
+                return;
+            }
+
+            // 5. Llamar a la función de previsualización
+            console.log(`Clic en fila detectado para ID: ${id}`);
+            previewQuestion(id); // Reutilizar la función existente
+
+        });
+        console.log("Listener de clic en filas añadido al tbody.");
     }
 });

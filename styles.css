@@ -470,6 +470,58 @@ hr {
     outline: none;
 }
 
+/* En styles.css */
+
+#questions-table tbody tr {
+  transition: background-color 0.15s ease-in-out; /* Transición suave */
+}
+
+/* Estilo al pasar el ratón sobre filas NO seleccionadas */
+#questions-table tbody tr:not(.selected):hover {
+  cursor: pointer;
+  background-color: #eef5fd; /* Un azul muy claro o el color que prefieras */
+}
+
+/* Asegurarse que el estilo :hover no afecte a celdas con botones/inputs */
+#questions-table tbody tr:not(.selected):hover td button,
+#questions-table tbody tr:not(.selected):hover td input {
+  cursor: initial; /* O el cursor específico del botón/input */
+}
+
+/* En styles.css */
+
+/* Estilo para la fila que se está previsualizando */
+#questions-table tbody tr.previewing {
+  background-color: #FFF9C4 !important; /* Un amarillo pálido (ejemplo) */
+  /* O un borde sutil: */
+  /* border-left: 4px solid var(--uned-green); */
+  /* box-shadow: inset 3px 0 0 0 var(--uned-green); */
+
+  /* Asegurar que el color de fondo tenga precedencia sobre :hover y :nth-child */
+  /* !important puede ser necesario dependiendo de la especificidad de tus otros estilos */
+}
+
+/* Ajustar el estilo hover para que no sobreescriba el previewing */
+#questions-table tbody tr.previewing:hover {
+   background-color: #FFF59D !important; /* Un amarillo un poco más oscuro al pasar el ratón */
+   cursor: default; /* Indicar que ya está activa */
+}
+
+/* Asegurar que el estilo de fila 'selected' tenga más prioridad si coinciden */
+#questions-table tbody tr.selected,
+#questions-table tbody tr.selected:hover {
+  background-color: #d1e7dd !important; /* Verde claro de selección */
+}
+
+/* Si una fila está seleccionada Y previsualizándose (caso raro, decide cuál gana) */
+/* Opción 1: Gana 'selected' (verde) - No necesitas añadir nada si el CSS de 'selected' es más específico o usa !important */
+/* Opción 2: Gana 'previewing' (amarillo) */
+/*
+#questions-table tbody tr.selected.previewing,
+#questions-table tbody tr.selected.previewing:hover {
+   background-color: #FFF59D !important; // Amarillo oscuro gana
+}
+*/
 
 /* --- ESTILOS RESPONSIVE --- */
 @media (max-width: 992px) {
