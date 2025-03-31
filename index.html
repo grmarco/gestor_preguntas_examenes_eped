@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Añadido para responsividad móvil -->
+    <title>Gestor de Preguntas de Examen EPED - UNED</title>
+
+    <!-- Librerías JS (para funcionalidades específicas) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://unpkg.com/docx@8.4.0/build/index.umd.js"></script>
+
+    <!-- Estilos CSS -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- DataTables CSS (para tabla interactiva) -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <!-- Chart.js (no necesita CSS propio generalmente) -->
+
+</head>
+<body>
+    <h1>Gestor de Preguntas de Examen</h1>
+
+    <!-- === CONTENEDOR PARA EL GRÁFICO DE ESTADÍSTICAS === -->
+    <div class="stats-container" style="margin-bottom: 2em; background-color: var(--container-bg); padding: 1.5em; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+        <h2>Estadísticas de Temas por Año</h2>
+        <!-- El canvas donde se dibujará el gráfico -->
+        <canvas id="topicStatsChart" style="max-height: 400px; width: 100%;"></canvas>
+    </div>
+    <!-- =============================================== -->
+
+    <div class="layout-container">
+
+        <!-- Columna Izquierda: Tabla y Acciones -->
+        <div class="table-column">
+            <h2>Preguntas guardadas</h2>
+             <!-- Botón para abrir el modal -->
+             <button id="add-question-btn" type="button" style="margin-bottom: 1em;">+ Añadir/Editar Pregunta</button>
+
+            <div class="table-responsive-wrapper">
+                <!-- Tabla con cabecera definida -->
+                <table id="questions-table" class="display" style="width:100%"> <!-- Añadir clase 'display' es común para DataTables -->
+                     <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Tema</th>
+                        <th>Modalidad</th>
+                        <th>Año</th>
+                        <th>Mes</th>
+                        <th>Semana</th>
+                        <th>Vista previa</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                        <th>Seleccionar</th>
+                    </tr>
+                    </thead>
+                    <!-- El tbody será rellenado por DataTables -->
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-actions">
+                <button id="export-json">Exportar JSON</button>
+                <input type="file" id="import-json" accept="application/json">
+                <button id="export-word">Generar Word</button>
+            </div>
+        </div><!-- Fin table-column -->
+
+        <!-- Columna Derecha: SOLO Previsualización -->
+        <div class="preview-column">
+            <h3>Vista Previa</h3>
+            <div class="preview" id="markdown-preview">
+                Selecciona una pregunta ("Ver más") para ver la previsualización.
+            </div>
+        </div><!-- Fin preview-column -->
+
+    </div><!-- Fin layout-container -->
+
+    <!-- === INICIO MODAL === -->
+    <div id="form-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close-btn" aria-label="Cerrar">×</button>
+            <h3 id="modal-title">Añadir/Editar Pregunta</h3>
+            <hr>
+            <form id="question-form">
+                <!-- Contenido del formulario como estaba antes -->
+                <label>Clave API de OpenAI:<input type="password" id="api-key"></label>
+                <hr>
+                <label>Imagen para OCR:<input type="file" id="ocr-image" accept="image/jpeg"></label>
+                <button type="button" id="generate-markdown">Generar Markdown desde imagen</button>
+                <hr>
+                <label>Texto de la pregunta (Markdown):<textarea id="question-markdown" rows="6" required></textarea></label>
+                <label>Imagen adjunta:<input type="file" id="attached-image" accept="image/jpeg"></label>
+
+                <label>Puntos:<input type="text" id="points"></label>
+                <label>Tema:
+                  <select id="topic">
+                    <option value="">Seleccionar tema</option>
+                    <!-- Las opciones se mantienen o se podrían generar dinámicamente -->
+                    <option value="Tema 1: Estructuras de Datos Básicas">Tema 1: Estructuras de Datos Básicas</option>
+                    <option value="Tema 2: Recursividad">Tema 2: Recursividad</option>
+                    <option value="Tema 3: Análisis Básico de Algoritmos">Tema 3: Análisis Básico de Algoritmos</option>
+                    <option value="Tema 4: Listas">Tema 4: Listas</option>
+                    <option value="Tema 5: Pilas y Colas">Tema 5: Pilas y Colas</option>
+                    <option value="Tema 6: Árboles">Tema 6: Árboles</option>
+                    <option value="Tema 7: Árboles de búsqueda binaria">Tema 7: Árboles de búsqueda binaria</option>
+                  </select>
+                </label>
+                <button type="button" id="suggest-topic">Sugerir tema automáticamente</button>
+                <label>Año:<input type="number" id="year"></label>
+                <label>Mes:
+                  <select id="month">
+                    <option value="Junio">Junio</option>
+                    <option value="Septiembre">Septiembre</option>
+                  </select>
+                </label>
+                <label>Semana:
+                    <select id="week">
+                      <option value="Semana 1">Semana 1</option>
+                      <option value="Semana 2">Semana 2</option>
+                      <option value="Original">Original</option>
+                      <option value="Reserva">Reserva</option>
+                    </select>
+                  </label>
+                <label>Modalidad:
+                    <select id="mode">
+                      <option value="">Seleccionar</option>
+                      <option value="Teórica">Teórica</option>
+                      <option value="Práctica">Práctica</option>
+                    </select>
+                  </label>
+                  <label>Descripción (opcional):<textarea id="description" rows="2"></textarea></label>
+
+                <button type="submit">Guardar pregunta</button>
+            </form>
+        </div>
+    </div>
+    <!-- === FIN MODAL === -->
+
+    <!-- SCRIPTS -->
+    <!-- jQuery (Requerido por DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <!-- DataTables JS -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Tus Scripts Personalizados -->
+    <script src="openai.js"></script> <!-- Funciones de OpenAI -->
+    <script src="export.js"></script> <!-- Función exportar a Word -->
+    <script src="stats.js"></script> <!-- Lógica para generar gráfico -->
+    <script src="app.js"></script>   <!-- Lógica principal de la aplicación -->
+
+</body>
+</html>

@@ -1,0 +1,531 @@
+/* --- Importar una fuente moderna (Ej: Inter o Lato desde Google Fonts) --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); /* Ejemplo con Inter */
+
+:root {
+  /* Paleta de Colores Refinada */
+  --uned-green: #006633;
+  --uned-green-dark: #004d26;
+  --background-light: #f8f9fa; /* Un gris muy claro para el fondo general */
+  --container-bg: #ffffff;   /* Blanco para contenedores principales */
+  --text-primary: #212529;    /* Negro/Gris oscuro para texto principal */
+  --text-secondary: #6c757d;  /* Gris medio para texto secundario/labels */
+  --border-color: #dee2e6;     /* Gris claro para bordes sutiles */
+  --border-color-focus: #80bdff; /* Azul claro para foco (o usar el verde) */
+  --input-bg: #ffffff;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+}
+
+/* --- Estilos Globales y Tipografía --- */
+html {
+    scroll-behavior: smooth; /* Para el scroll al preview */
+}
+
+body {
+  font-family: 'Inter', sans-serif; /* Aplicar la fuente importada */
+  background-color: var(--background-light);
+  color: var(--text-primary);
+  padding: 2em;
+  line-height: 1.6; /* Ligeramente más espacio entre líneas */
+  font-size: 16px; /* Base de tamaño de fuente */
+  -webkit-font-smoothing: antialiased; /* Mejor renderizado de fuentes */
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Evitar scroll del body cuando el modal está abierto */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* --- Títulos --- */
+h1, h2, h3 {
+  color: var(--uned-green);
+  font-weight: 600; /* Un poco más de peso */
+  margin-bottom: 0.8em;
+}
+
+h1 {
+  font-size: 2.25rem; /* Más grande */
+  border-bottom: 3px solid var(--uned-green);
+  padding-bottom: 0.4em;
+  margin-bottom: 1.5em;
+  font-weight: 700;
+  letter-spacing: -0.5px; /* Ajuste sutil */
+}
+
+h2 {
+  font-size: 1.75rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.3em;
+}
+
+h3 { /* Estilo general para h3 */
+  font-size: 1.4rem;
+  color: var(--text-primary);
+}
+
+/* Título específico dentro del modal */
+.modal-content h3 {
+    margin-top: 0; /* Quitar margen superior para el título del modal */
+    color: var(--uned-green); /* Mantener el verde para el título del modal */
+}
+
+
+/* --- Formularios (Dentro del Modal) --- */
+.modal-content label { /* Aplicar estilos de label dentro del modal */
+  font-weight: 500;
+  margin-top: 1.2em;
+  margin-bottom: 0.4em;
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="number"],
+.modal-content input[type="password"],
+.modal-content input[type="file"],
+.modal-content select,
+.modal-content textarea {
+  width: 100%;
+  padding: 0.7em 0.9em;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  margin-bottom: 1em;
+  box-sizing: border-box;
+  font-size: 1rem;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-content input[type="file"] {
+    padding: 0.5em 0.7em;
+    background-color: var(--background-light);
+    cursor: pointer;
+}
+.modal-content input[type="file"]::file-selector-button {
+    background-color: var(--uned-green);
+    color: white;
+    border: none;
+    padding: 0.4em 0.8em;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-right: 1em;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+.modal-content input[type="file"]::file-selector-button:hover {
+    background-color: var(--uned-green-dark);
+}
+
+
+/* Estado de Foco para Inputs en Modal */
+.modal-content input[type="text"]:focus,
+.modal-content input[type="number"]:focus,
+.modal-content input[type="password"]:focus,
+.modal-content select:focus,
+.modal-content textarea:focus {
+  outline: none;
+  border-color: var(--uned-green);
+  box-shadow: 0 0 0 3px rgba(0, 102, 51, 0.15);
+}
+
+.modal-content textarea {
+    min-height: 100px;
+}
+
+/* --- Botones --- */
+/* Estilo general para botones principales */
+button,
+button[type="submit"],
+input[type="file"]::file-selector-button, /* Incluir botón de file input */
+.table-actions input[type="file"]::file-selector-button /* Botón importar */
+{
+  background-color: var(--uned-green);
+  color: white;
+  border: none;
+  padding: 0.7em 1.5em;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-top: 0.5em;
+  margin-right: 0.5em;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  vertical-align: middle; /* Alinear mejor con inputs */
+}
+/* Ajuste para botón de file que no requiere tanto margen superior */
+input[type="file"]::file-selector-button {
+     margin-top: 0;
+     margin-right: 1em; /* Asegurar espacio */
+}
+
+button:hover,
+button[type="submit"]:hover,
+input[type="file"]::file-selector-button:hover,
+.table-actions input[type="file"]::file-selector-button:hover
+{
+  background-color: var(--uned-green-dark);
+  transform: translateY(-1px); /* Efecto sutil al pasar el ratón */
+}
+button:active,
+button[type="submit"]:active
+{
+    transform: translateY(0px); /* Efecto al pulsar */
+}
+
+/* Botón secundario (ej: Sugerir tema, Generar Markdown en modal) */
+.modal-content button[type="button"] {
+    background-color: var(--container-bg);
+    color: var(--uned-green);
+    border: 1px solid var(--uned-green);
+    text-transform: none; /* Quizás no uppercase para secundarios */
+}
+.modal-content button[type="button"]:hover {
+    background-color: #e6f0ea;
+    color: var(--uned-green-dark);
+    border-color: var(--uned-green-dark);
+}
+
+/* Botones pequeños (en tabla) */
+td button:not(.ver-mas) { /* Excluir ver más */
+    padding: 0.3em 0.6em;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: normal;
+    background-color: transparent;
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+    margin: 0; /* Resetear márgenes */
+    line-height: 1; /* Ajustar línea */
+}
+td button:not(.ver-mas):hover {
+    background-color: var(--background-light);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    transform: none;
+}
+
+/* Botón "Ver más" en tabla */
+button.ver-mas {
+    display: inline-block;
+    margin-left: 0.5em;
+    padding: 0.2em 0.6em;
+    font-size: 0.8rem;
+    background-color: #e9ecef;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: var(--radius-sm);
+    text-transform: none;
+    margin-top: 0.3em; /* Pequeño espacio superior */
+    font-weight: 500;
+}
+button.ver-mas:hover {
+    background-color: #ced4da;
+    color: var(--text-primary);
+    transform: none;
+}
+
+
+/* --- Tabla --- */
+.table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1em;
+    border: 1px solid var(--border-color); /* Añadir borde al wrapper */
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+table {
+  width: 100%;
+  min-width: 800px; /* Ancho mínimo para forzar scroll si es necesario */
+  background-color: var(--container-bg);
+  border-collapse: collapse;
+  /* Quitar bordes/sombras de la tabla misma, se manejan en el wrapper */
+  border-radius: 0;
+  box-shadow: none;
+  margin: 0;
+}
+
+th {
+  background-color: var(--uned-green);
+  color: white;
+  padding: 0.9em 1.2em;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: sticky; /* Cabecera pegajosa al hacer scroll horizontal */
+  top: 0;           /* Necesario para sticky */
+  z-index: 10;      /* Para que esté sobre el contenido */
+}
+
+td {
+  padding: 0.9em 1.2em;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+tr:last-child td {
+    border-bottom: none; /* Quitar borde solo en la última fila */
+}
+
+tr:nth-child(even) td {
+  background-color: var(--background-light);
+}
+tr:hover td {
+    background-color: #e6f0ea;
+}
+
+/* Contenedor de acciones en tabla */
+td:nth-last-child(2) { /* Penúltima celda (acciones) */
+    /* display: flex; */ /* Quitado, puede causar problemas con anchos */
+    white-space: nowrap; /* Evitar que los botones se rompan en dos líneas */
+}
+td:nth-last-child(2) button {
+    margin-right: 0.3em; /* Espacio entre botones de acción */
+}
+
+td div.resumen-content {
+    max-height: 4.8em;
+    overflow: hidden;
+    /* display: inline; */ /* Comentado, puede causar problemas */
+}
+
+
+/* --- Preview --- */
+.preview {
+  border: 1px solid var(--border-color);
+  padding: 1.5em;
+  background: var(--container-bg);
+  margin-top: 0;
+  margin-bottom: 2em;
+  border-left: 4px solid var(--uned-green);
+  word-wrap: break-word;
+  /*max-height: 70vh; /* Ajustar altura máxima */
+  overflow-y: auto;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+/* Estilos para contenido markdown dentro del preview */
+.preview p { margin-bottom: 1em; }
+.preview code {
+    background-color: var(--background-light);
+    padding: 0.2em 0.4em;
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+    font-size: 0.9em;
+    color: #d63384; /* Color para código inline */
+}
+.preview pre {
+    background-color: #212529; /* Fondo oscuro para bloques de código */
+    color: #f8f9fa;       /* Texto claro */
+    padding: 1em;
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+}
+.preview pre code {
+    background-color: transparent;
+    padding: 0;
+    color: inherit; /* Heredar color del pre */
+    font-size: inherit;
+}
+.preview ul, .preview ol { padding-left: 1.5em; margin-bottom: 1em; }
+.preview li { margin-bottom: 0.5em; }
+.preview blockquote {
+    border-left: 4px solid var(--border-color);
+    padding-left: 1em;
+    margin-left: 0;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+.preview img { /* Hacer imágenes responsivas dentro del preview */
+    max-width: 100%;
+    height: auto;
+    display: block; /* Evitar espacio extra debajo */
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+
+/* --- Layout --- */
+.layout-container {
+  display: flex;
+  gap: 2.5em;
+  align-items: flex-start;
+}
+
+.table-column {
+  flex: 1;
+  min-width: 0; /* Evita overflow en flex */
+}
+
+.preview-column { /* Columna renombrada/ajustada */
+  flex: 0 0 35%;
+  max-width: 500px;
+  min-width: 320px;
+}
+
+
+/* --- Separadores --- */
+hr {
+  border: none;
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 1.5em 0; /* Ajuste de espacio */
+}
+
+/* --- Otros ajustes --- */
+.table-actions {
+  margin-top: 1.5em;
+  display: flex;
+  flex-wrap: wrap; /* Permitir que los botones pasen a la siguiente línea */
+  gap: 1em;
+  align-items: center;
+}
+.table-actions input[type="file"] {
+    margin-bottom: 0;
+    border: none;
+    padding: 0;
+    background: none;
+    width: auto;
+    max-width: 150px; /* Limitar ancho del input file 'fantasma' */
+    margin-top: 0.5em; /* Alineación vertical */
+}
+
+/* --- ESTILOS PARA EL MODAL --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    /* overflow: auto; */ /* Quitado, el scroll lo maneja modal-content */
+    background-color: rgba(0, 0, 0, 0.6); /* Un poco más oscuro */
+    align-items: center;
+    justify-content: center;
+    opacity: 0; /* Para transición */
+    transition: opacity 0.3s ease;
+}
+
+.modal.is-visible {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: var(--container-bg);
+    margin: auto;
+    padding: 25px 35px; /* Ajustar padding */
+    border-radius: var(--radius-md);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Sombra más pronunciada */
+    position: relative;
+    width: 90%;
+    max-width: 750px; /* Un poco más ancho */
+    max-height: 90vh;
+    overflow-y: auto; /* Scroll interno */
+    transform: scale(0.95); /* Para transición */
+    transition: transform 0.3s ease;
+}
+.modal.is-visible .modal-content {
+    transform: scale(1);
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 1;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0; /* Sin padding extra */
+     width: 30px; /* Tamaño fijo */
+     height: 30px; /* Tamaño fijo */
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     border-radius: 50%; /* Hacerlo redondo */
+     transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.modal-close:hover,
+.modal-close:focus {
+    color: var(--text-primary);
+    background-color: var(--background-light); /* Fondo sutil al pasar el ratón */
+    text-decoration: none;
+    outline: none;
+}
+
+
+/* --- ESTILOS RESPONSIVE --- */
+@media (max-width: 992px) {
+    body {
+        padding: 1em; /* Menos padding en pantallas pequeñas */
+    }
+    .layout-container {
+        flex-direction: column;
+        gap: 2em;
+    }
+    .table-column,
+    .preview-column {
+        flex-basis: 100%;
+        width: 100%;
+        max-width: none;
+    }
+     .preview-column {
+         order: 2; /* Preview después de la tabla */
+     }
+     .table-column {
+         order: 1; /* Tabla primero */
+     }
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.5rem; }
+    .modal-content {
+        padding: 20px 25px; /* Menos padding en modal */
+        max-width: 95%; /* Casi todo el ancho */
+    }
+    th, td {
+        padding: 0.8em 1em; /* Menos padding en celdas */
+    }
+}
+
+/* Opcional: Ocultar columnas menos importantes en pantallas muy pequeñas */
+@media (max-width: 768px) {
+    #questions-table th:nth-child(3), /* Modalidad */
+    #questions-table td:nth-child(3),
+    #questions-table th:nth-child(5), /* Mes */
+    #questions-table td:nth-child(5),
+    #questions-table th:nth-child(6), /* Semana */
+    #questions-table td:nth-child(6)
+     {
+         /* display: none; */ /* Descomentar para ocultar */
+    }
+    table {
+        min-width: 600px; /* Reducir ancho mínimo */
+    }
+}
+
+/* --- Estilo para la fila seleccionada (mantener al final para especificidad) --- */
+tr.selected td { /* Usar clase en TR para mejor manejo */
+  background-color: #d1e7dd !important;
+  color: #0a3622 !important;
+}
+
+/* Asegurarse que el hover no sobreescriba el selected */
+tr.selected:hover td {
+    background-color: #c1d7cf !important; /* Un poco más oscuro en hover si está seleccionada */
+}
