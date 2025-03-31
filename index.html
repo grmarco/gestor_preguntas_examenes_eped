@@ -18,23 +18,16 @@
 
 </head>
 <body>
-    <h1>Gestor de Preguntas de Examen</h1>
-
-    <!-- === CONTENEDOR PARA EL GRÁFICO DE ESTADÍSTICAS === -->
-    <div class="stats-container" style="margin-bottom: 2em; background-color: var(--container-bg); padding: 1.5em; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
-        <h2>Estadísticas de Temas por Año</h2>
-        <!-- El canvas donde se dibujará el gráfico -->
-        <canvas id="topicStatsChart" style="max-height: 400px; width: 100%;"></canvas>
-    </div>
-    <!-- =============================================== -->
+    <h1>Gestor de Preguntas de Examen EPED - UNED</h1>
 
     <div class="layout-container">
 
         <!-- Columna Izquierda: Tabla y Acciones -->
         <div class="table-column">
-            <h2>Preguntas guardadas</h2>
              <!-- Botón para abrir el modal -->
              <button id="add-question-btn" type="button" style="margin-bottom: 1em;">+ Añadir/Editar Pregunta</button>
+             <label for="import-json">Cargar json de BBDD:</label>
+             <input type="file" id="import-json" accept="application/json">
 
             <div class="table-responsive-wrapper">
                 <!-- Tabla con cabecera definida -->
@@ -60,7 +53,6 @@
 
             <div class="table-actions">
                 <button id="export-json">Exportar JSON</button>
-                <input type="file" id="import-json" accept="application/json">
                 <button id="export-word">Generar Word</button>
             </div>
         </div><!-- Fin table-column -->
@@ -135,6 +127,16 @@
         </div>
     </div>
     <!-- === FIN MODAL === -->
+    
+
+
+    <!-- === CONTENEDOR PARA EL GRÁFICO DE ESTADÍSTICAS === -->
+    <div class="stats-container" style="margin-bottom: 2em; background-color: var(--container-bg); padding: 1.5em; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+      <h2>Estadísticas de Temas por Año</h2>
+      <!-- El canvas donde se dibujará el gráfico -->
+      <canvas id="topicStatsChart" style="max-height: 400px; width: 100%;"></canvas>
+  </div>
+  <!-- =============================================== -->
 
     <!-- SCRIPTS -->
     <!-- jQuery (Requerido por DataTables) -->

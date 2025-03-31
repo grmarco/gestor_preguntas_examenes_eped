@@ -327,12 +327,36 @@ if (importJsonInput) {
 
 // --- Otros Botones y Eventos (OCR, Sugerir, Word, Pegar) ---
 // (Se asume que el código para estos listeners está aquí y funciona)
-if (exportWordBtn) { exportWordBtn.addEventListener('click', () => {
-    const selectedQuestions = questions.filter(q => q.selected);
-    if (selectedQuestions.length === 0) return alert("Selecciona preguntas para exportar a Word.");
-    if (typeof generateWordDoc !== 'function') return alert("Función generateWordDoc no definida (revisa export.js).");
-    try { generateWordDoc(selectedQuestions); } catch (error) { console.error("Error generando Word:", error); alert("Error al generar Word: " + error.message); }
-}); }
+// En app.js, dentro de los Event Listeners
+
+if (exportWordBtn) {
+    exportWordBtn.addEventListener('click', () => {
+        const selectedQuestions = questions.filter(q => q.selected);
+        if (selectedQuestions.length === 0) {
+            return alert("Selecciona al menos una pregunta para exportar a Word.");
+        }
+        // Verificar si la función existe (definida en export.js)
+        if (typeof generateWordDoc === 'function') {
+            try {
+                 // Llamar a la función de export.js pasándole las preguntas seleccionadas
+                 generateWordDoc(selectedQuestions)
+                    .then(() => {
+                         console.log("Llamada a generateWordDoc completada (la descarga debe haberse iniciado).");
+                    })
+                    .catch(error => {
+                         console.error("Error durante generateWordDoc:", error);
+                         alert("Ocurrió un error al generar el documento Word.");
+                    });
+            } catch (error) { // Capturar errores síncronos si la llamada falla inmediatamente
+                 console.error("Error llamando a generateWordDoc:", error);
+                 alert("Error al iniciar la generación del documento Word.");
+            }
+        } else {
+             alert("Error: La función para generar documentos Word (generateWordDoc) no está cargada. Revisa export.js.");
+             console.error("Función generateWordDoc no definida.");
+        }
+    });
+}
 
 if (generateMarkdownBtn) { generateMarkdownBtn.addEventListener('click', async () => {
     const file = ocrInput.files[0]; const apiKey = apiKeyInput.value;
